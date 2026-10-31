@@ -1,0 +1,26 @@
+{
+  "name": "app-service-eventhub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A telemetry producer and consumer passing events through Event Hubs, checkpointing to Blob Storage, authenticating with managed identities.",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@azure/event-hubs": "^6.0.0",
+    "@azure/eventhubs-checkpointstore-blob": "^2.0.0",
+    "@azure/storage-blob": "^12.26.0",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@azure/core-auth": "^1.9.0",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2"
+  }
+}
