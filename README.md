@@ -12,7 +12,7 @@ o888ooooood8 `Y8bod8P' `Y8bod8P' `Y888""8o o888o o888o     .8'
 
 # Example: Stream telemetry from App Service through Event Hubs, with checkpoints in Blob Storage, within Locally
 
-This example shows how two apps running on App Service can stream telemetry through Azure Event Hubs on [Locally Build](https://locally.build). The consumer records how far it has read in Azure Blob Storage, so it carries on where it left off after a restart. Neither app stores a key, connection string or password: each authenticates with its own **user-assigned managed identity**.
+This example shows how to stream telemetry between two apps on App Service through Azure Event Hubs, with checkpoints in Azure Blob Storage, on [Locally Build](https://locally.build). The consumer records how far it has read in Azure Blob Storage, so it carries on where it left off after a restart. Neither app stores a key, connection string or password: each authenticates with its own **user-assigned managed identity**.
 
 ```
  producer (App Service)                         consumer (App Service)
@@ -85,13 +85,13 @@ On Azure the Storage Blob Data Contributor role could be scoped to just the `che
 
 ## Running the example
 
-First, make sure your container runtime (Docker or Podman) is running, then start Locally:
+First up, we need to ensure our container runtime (Docker or Podman) is running, then launch Locally:
 
 ```bash
 locally build
 ```
 
-With Locally running, open another terminal and initialise Terraform. This downloads the providers and sets up the module:
+With Locally running, in another terminal we can initialise Terraform, which both downloads the providers we need and configures the module for use:
 
 ```bash
 cd environments/locally
@@ -99,17 +99,17 @@ terraform init
 ```
 
 > [!NOTE]
-> You can use OpenTofu instead by running `tofu` wherever this says `terraform`.
+> It's possible to use OpenTofu here by substituting `terraform` for `tofu`.
 
-Once Terraform is initialised, provision the example:
+With Terraform initialised, we can then provision the example by running:
 
 ```bash
 locally run terraform apply
 ```
 
-During the apply, Terraform builds the app with `docker build` and pushes it to the Container Registry, so the `docker` command needs to be available. With Podman, the `podman-docker` shim or a `docker` alias works.
+As part of the apply, the app is built with `docker build` and pushed into the Container Registry, so the `docker` command needs to be available (with Podman, the `podman-docker` shim or a `docker` alias works).
 
-After you approve the plan and the resources are deployed, both apps are running at the URLs in the outputs:
+Once you approve the plan and the resources have been deployed, both apps are running at the URLs in the outputs:
 
 ```
 producer_url = "https://locally-example-eventhub-producer.furnace.locally:5663"
@@ -121,7 +121,7 @@ consumer_url = "https://locally-example-eventhub-consumer.furnace.locally:5663"
 To see the checkpoints at work, restart the consumer:
 
 ```bash
-az webapp restart --resource-group locally-example-eventhub-resources --name locally-example-eventhub-consumer
+locally run az webapp restart --resource-group locally-example-eventhub-resources --name locally-example-eventhub-consumer
 ```
 
 When it comes back, its page shows each partition resuming from its checkpoint, and nothing already processed is read again. Send another burst and only the new events are received.
@@ -134,7 +134,7 @@ You can also look at each step from the CLI. To peek at the events in a partitio
 locally eventhub hub peek --namespace locally-example-eventhub-ns --name telemetry --partition 0
 ```
 
-Both apps send their logs to a Log Analytics Workspace. You can query them in [the Monitoring section of the Locally Dashboard](https://localhost:5678/monitoring/components) by running:
+As this Terraform configuration sends the App Service logs into a Log Analytics Workspace, we can then query them within [the Locally Dashboard, in the Monitoring section](https://localhost:5678/monitoring/components), by running:
 
 ```
 AppServiceConsoleLogs | order by TimeGenerated desc
